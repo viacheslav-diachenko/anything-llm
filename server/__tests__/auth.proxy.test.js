@@ -30,6 +30,7 @@ describe("userFromSession reverse proxy", () => {
     process.env.REVERSE_PROXY_AUTH_ENABLED = "true";
     process.env.REVERSE_PROXY_AUTH_ADMIN_GROUPS = "admins";
     process.env.REVERSE_PROXY_AUTH_MANAGER_GROUPS = "managers";
+    process.env.REVERSE_PROXY_AUTH_DEFAULT_ROLE = "default";
   });
 
   test("assigns admin role from group", async () => {

@@ -49,7 +49,13 @@ async function userFromSession(request, response = null) {
       .map((g) => g.trim())
       .filter(Boolean);
 
-    let role = "default";
+    const validRoles = ["admin", "manager", "default"];
+    const defaultRoleEnv = process.env.REVERSE_PROXY_AUTH_DEFAULT_ROLE;
+    const defaultRole = validRoles.includes(defaultRoleEnv)
+      ? defaultRoleEnv
+      : "default";
+
+    let role = defaultRole;
     if (remoteGroups.some((g) => adminGroups.includes(g))) role = "admin";
     else if (remoteGroups.some((g) => managerGroups.includes(g))) role = "manager";
 

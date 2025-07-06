@@ -183,6 +183,7 @@ services:
       - REVERSE_PROXY_AUTH_ENABLED=true
       - REVERSE_PROXY_AUTH_ADMIN_GROUPS=admins
       - REVERSE_PROXY_AUTH_MANAGER_GROUPS=managers
+      - REVERSE_PROXY_AUTH_DEFAULT_ROLE=default
 ```
 
 

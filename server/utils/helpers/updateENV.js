@@ -1085,6 +1085,7 @@ function dumpENV() {
     // Simple SSO
     "SIMPLE_SSO_ENABLED",
     "SIMPLE_SSO_NO_LOGIN",
+    "REVERSE_PROXY_AUTH_ENABLED",
     // Community Hub
     "COMMUNITY_HUB_BUNDLE_DOWNLOADS_ENABLED",
 

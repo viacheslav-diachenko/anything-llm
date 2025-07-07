@@ -1,7 +1,7 @@
 const { SystemSettings } = require("../../models/systemSettings");
 const { User } = require("../../models/user");
 const { EncryptionManager } = require("../EncryptionManager");
-const { decodeJWT } = require("../http");
+const { decodeJWT, userFromSession } = require("../http");
 const EncryptionMgr = new EncryptionManager();
 
 async function validatedRequest(request, response, next) {
@@ -32,6 +32,13 @@ async function validatedRequest(request, response, next) {
   const token = auth ? auth.split(" ")[1] : null;
 
   if (!token) {
+    if (process.env.REVERSE_PROXY_AUTH_ENABLED === "true") {
+      const proxyUser = await userFromSession(request, response);
+      if (proxyUser) {
+        response.locals.user = proxyUser;
+        return next();
+      }
+    }
     response.status(401).json({
       error: "No auth token found.",
     });
@@ -73,6 +80,13 @@ async function validateMultiUserRequest(request, response, next) {
   const token = auth ? auth.split(" ")[1] : null;
 
   if (!token) {
+    if (process.env.REVERSE_PROXY_AUTH_ENABLED === "true") {
+      const proxyUser = await userFromSession(request, response);
+      if (proxyUser) {
+        response.locals.user = proxyUser;
+        return next();
+      }
+    }
     response.status(401).json({
       error: "No auth token found.",
     });

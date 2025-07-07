@@ -29,6 +29,14 @@ async function userFromSession(request, response = null) {
     return response.locals.user;
   }
 
+  if (process.env.REVERSE_PROXY_AUTH_ENABLED === "true") {
+    const proxyUser = request.header("Remote-User");
+    if (proxyUser) {
+      const user = await User.get({ username: proxyUser });
+      if (user) return user;
+    }
+  }
+
   const auth = request.header("Authorization");
   const token = auth ? auth.split(" ")[1] : null;
 

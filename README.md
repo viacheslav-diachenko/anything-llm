@@ -173,6 +173,11 @@ Mintplex Labs & the community maintain a number of deployment methods, scripts, 
 - `yarn dev:frontend` To boot the frontend locally (from root of repo).
 - `yarn dev:collector` To then run the document collector (from root of repo).
 
+- When using an authenticating reverse proxy, configure
+  `REVERSE_PROXY_AUTH_USER_HEADER` and `REVERSE_PROXY_AUTH_GROUPS_HEADER`
+  in your `.env` files to match the header names set by your proxy.
+  Defaults are `Remote-User` and `Remote-Groups`.
+
 [Learn about documents](./server/storage/documents/DOCUMENTS.md)
 
 [Learn about vector caching](./server/storage/vector-cache/VECTOR_CACHE.md)

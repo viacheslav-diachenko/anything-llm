@@ -6,6 +6,11 @@ const { User } = require("../../models/user");
 const { jsonrepair } = require("jsonrepair");
 const extract = require("extract-json-from-string");
 
+const REVERSE_PROXY_AUTH_USER_HEADER =
+  process.env.REVERSE_PROXY_AUTH_USER_HEADER || "Remote-User";
+const REVERSE_PROXY_AUTH_GROUPS_HEADER =
+  process.env.REVERSE_PROXY_AUTH_GROUPS_HEADER || "Remote-Groups";
+
 function reqBody(request) {
   return typeof request.body === "string"
     ? JSON.parse(request.body)
@@ -27,6 +32,17 @@ function makeJWT(info = {}, expiry = "30d") {
 async function userFromSession(request, response = null) {
   if (!!response && !!response.locals?.user) {
     return response.locals.user;
+  }
+
+  const proxyUser = request.header(REVERSE_PROXY_AUTH_USER_HEADER);
+  if (proxyUser) {
+    const user = await User.get({ username: String(proxyUser) });
+    if (response) {
+      response.locals.user = user;
+      const groups = request.header(REVERSE_PROXY_AUTH_GROUPS_HEADER);
+      if (groups) response.locals.proxyAuthGroups = groups;
+    }
+    return user;
   }
 
   const auth = request.header("Authorization");

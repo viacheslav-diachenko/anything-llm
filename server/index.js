@@ -8,6 +8,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
 const { reqBody } = require("./utils/http");
+const { userFromSession } = require("./utils/http");
 const { systemEndpoints } = require("./endpoints/system");
 const { workspaceEndpoints } = require("./endpoints/workspaces");
 const { chatEndpoints } = require("./endpoints/chat");
@@ -41,6 +42,21 @@ app.use(
     extended: true,
   })
 );
+
+app.use(async (req, res, next) => {
+  if (
+    process.env.MULTI_USER_MODE === "true" &&
+    process.env.REVERSE_PROXY_AUTH_ENABLED === "true"
+  ) {
+    try {
+      const user = await userFromSession(req, res);
+      if (user) res.locals.user = user;
+    } catch (e) {
+      console.error(e.message);
+    }
+  }
+  next();
+});
 
 if (!!process.env.ENABLE_HTTPS) {
   bootSSL(app, process.env.SERVER_PORT || 3001);

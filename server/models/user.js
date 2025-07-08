@@ -236,6 +236,33 @@ const User = {
     }
   },
 
+  /**
+   * Find a user by clause or create one if it does not exist.
+   * @param {{username: string}} clause
+   * @returns {Promise<{user: User|null, created: boolean}>}
+   */
+  findOrCreate: async function ({ username }) {
+    if (!username) return { user: null, created: false };
+    let user = await prisma.users.findFirst({ where: { username: String(username) } });
+    if (user) return { user: this.filterFields(user), created: false };
+
+    try {
+      const bcrypt = require("bcrypt");
+      const crypto = require("crypto");
+      user = await prisma.users.create({
+        data: {
+          username: this.validations.username(username),
+          password: bcrypt.hashSync(crypto.randomBytes(16).toString("hex"), 10),
+          role: "default",
+        },
+      });
+      return { user: this.filterFields(user), created: true };
+    } catch (error) {
+      console.error(error.message);
+      return { user: null, created: false };
+    }
+  },
+
   count: async function (clause = {}) {
     try {
       const count = await prisma.users.count({ where: clause });

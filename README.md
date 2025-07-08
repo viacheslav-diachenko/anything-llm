@@ -165,6 +165,28 @@ Mintplex Labs & the community maintain a number of deployment methods, scripts, 
 
 [or set up a production AnythingLLM instance without Docker →](./BARE_METAL.md)
 
+### Reverse-Proxy Auth + Multi-User
+
+Traefik → Authelia → Anything-LLM
+
+```yaml
+services:
+  traefik:
+    image: traefik:v2.11
+    # configuration...
+  authelia:
+    image: authelia/authelia
+    # configuration...
+  anything-llm:
+    image: ghcr.io/mintplex-labs/anything-llm:latest
+    environment:
+      - REVERSE_PROXY_AUTH_ENABLED=true
+      - REVERSE_PROXY_AUTH_ADMIN_GROUPS=admins
+      - REVERSE_PROXY_AUTH_MANAGER_GROUPS=managers
+      - REVERSE_PROXY_AUTH_DEFAULT_ROLE=default
+```
+
+
 ## How to setup for development
 
 - `yarn setup` To fill in the required `.env` files you'll need in each of the application sections (from root of repo).

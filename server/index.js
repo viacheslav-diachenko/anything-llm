@@ -7,8 +7,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
-const { reqBody } = require("./utils/http");
-const { userFromSession } = require("./utils/http");
+const { reqBody, userFromSession } = require("./utils/http");
 const { systemEndpoints } = require("./endpoints/system");
 const { workspaceEndpoints } = require("./endpoints/workspaces");
 const { chatEndpoints } = require("./endpoints/chat");
@@ -89,6 +88,17 @@ embeddedEndpoints(apiRouter);
 browserExtensionEndpoints(apiRouter);
 
 if (process.env.NODE_ENV !== "development") {
+  if ("REVERSE_PROXY_AUTH" in process.env) {
+    app.use(async (request, response, next) => {
+      try {
+        await userFromSession(request, response);
+      } catch (e) {
+        console.error(e.message);
+      } finally {
+        next();
+      }
+    });
+  }
   const { MetaGenerator } = require("./utils/boot/MetaGenerator");
   const IndexPage = new MetaGenerator();
 

@@ -42,6 +42,21 @@ app.use(
   })
 );
 
+app.use(async (req, res, next) => {
+  if (
+    process.env.MULTI_USER_MODE === "true" &&
+    process.env.REVERSE_PROXY_AUTH_ENABLED === "true"
+  ) {
+    try {
+      const user = await userFromSession(req, res);
+      if (user) res.locals.user = user;
+    } catch (e) {
+      console.error(e.message);
+    }
+  }
+  next();
+});
+
 if (!!process.env.ENABLE_HTTPS) {
   bootSSL(app, process.env.SERVER_PORT || 3001);
 } else {
